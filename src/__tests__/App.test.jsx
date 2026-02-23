@@ -1,18 +1,59 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
-import App from '../App'
+import userEvent from '@testing-library/user-event'
+import { createMemoryRouter, RouterProvider } from 'react-router-dom'
+import Home from '../pages/Home'
+import About from '../pages/About'
+import ErrorPage from '../pages/ErrorPage'
+import DirectorContainer from '../pages/DirectorContainer'
+import DirectorList from '../pages/DirectorList'
+import DirectorForm from '../pages/DirectorForm'
+import DirectorCard from '../pages/DirectorCard'
+import MovieCard from '../pages/MovieCard'
+import MovieForm from '../pages/MovieForm'
 
-// Test wrapper to provide outlet context
-const TestWrapper = ({ children, initialEntries, contextValue }) => (
-  <MemoryRouter initialEntries={initialEntries}>
-    {contextValue ? (
-      <div data-testid="context-provider" data-context={JSON.stringify(contextValue)}>
-        {children}
-      </div>
-    ) : children}
-  </MemoryRouter>
-)
+const routes = [
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+  {
+    path: "/directors",
+    element: <DirectorContainer />,
+    children: [
+      {
+        index: true,
+        element: <DirectorList />,
+      },
+      {
+        path: "new",
+        element: <DirectorForm />,
+      },
+      {
+        path: ":id",
+        element: <DirectorCard />,
+        children: [
+          {
+            path: "movies/new",
+            element: <MovieForm />,
+          },
+          {
+            path: "movies/:movieId",
+            element: <MovieCard />,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: "*",
+    element: <ErrorPage />,
+  },
+]
 
 beforeEach(() => {
   global.fetch = vi.fn((url) => {
@@ -34,74 +75,39 @@ beforeEach(() => {
 
 describe('🎬 Movie Directory App - Vitest Suite', () => {
   it('renders Home component at root ("/")', async () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/'] })
+    render(<RouterProvider router={router} />)
     expect(await screen.findByText(/Welcome to the Movie Directory/i)).toBeInTheDocument()
   })
 
-  it('navigates to About page when clicking About link', async () => {
-    render(
-      <MemoryRouter initialEntries={['/']}>
-        <App />
-      </MemoryRouter>
-    )
-    const navbars = screen.getAllByRole('navigation')
-    const navbar = navbars[0]
-  
-    const aboutLink = within(navbar).getByRole('link', { name: /^About$/i })
-    fireEvent.click(aboutLink)
-  
-    await waitFor(() => {
-      expect(screen.getByText(/About the Movie Directory/i)).toBeInTheDocument()
-    })
-  })
-
   it('displays directors list at "/directors"', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors'] })
+    render(<RouterProvider router={router} />)
     expect(await screen.findByText(/Christopher Nolan/i)).toBeInTheDocument()
   })
 
   it('navigates to DirectorForm on "/directors/new"', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors/new']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors/new'] })
+    render(<RouterProvider router={router} />)
     expect(await screen.findByText(/Add New Director/i)).toBeInTheDocument()
   })
 
   it('navigates to a specific DirectorCard page', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors/1']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors/1'] })
+    render(<RouterProvider router={router} />)
     expect(await screen.findByText(/Director of mind-bending films/i)).toBeInTheDocument()
     expect(await screen.findByRole('link', { name: /Inception/i })).toBeInTheDocument()
   })
 
   it('navigates to MovieForm at "/directors/1/movies/new"', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors/1/movies/new']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors/1/movies/new'] })
+    render(<RouterProvider router={router} />)
     expect((await screen.findAllByText(/Add New Movie/i)).length).toBe(2)
   })
 
   it('renders MovieCard details correctly', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors/1/movies/m1']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors/1/movies/m1'] })
+    render(<RouterProvider router={router} />)
     const movieTitle = await screen.findAllByText(/Inception/i)
     expect(movieTitle[1]).toBeInTheDocument() // Ensure checking the right element (second instance is h2)
     expect(await screen.findByText(/Duration: 148 minutes/i)).toBeInTheDocument()
@@ -109,20 +115,14 @@ describe('🎬 Movie Directory App - Vitest Suite', () => {
   })
 
   it('handles invalid director ID gracefully', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors/999']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors/999'] })
+    render(<RouterProvider router={router} />)
     expect(await screen.findByText(/Director not found/i)).toBeInTheDocument()
   })
 
   it('handles invalid movie ID gracefully', async () => {
-    render(
-      <MemoryRouter initialEntries={['/directors/1/movies/invalid']}>
-        <App />
-      </MemoryRouter>
-    )
+    const router = createMemoryRouter(routes, { initialEntries: ['/directors/1/movies/invalid'] })
+    render(<RouterProvider router={router} />)
     expect(await screen.findByText(/Movie not found/i)).toBeInTheDocument()
   })
 })

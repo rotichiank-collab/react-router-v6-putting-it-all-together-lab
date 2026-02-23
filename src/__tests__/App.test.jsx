@@ -93,7 +93,7 @@ describe('🎬 Movie Directory App - Vitest Suite', () => {
         <App />
       </MemoryRouter>
     )
-    expect(await screen.findAllByText(/Add New Movie/i) == 2)
+    expect((await screen.findAllByText(/Add New Movie/i)).length).toBe(2)
   })
 
   it('renders MovieCard details correctly', async () => {

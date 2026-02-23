@@ -1,7 +1,10 @@
 
 import { Link } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
 
-const DirectorList = ({ directors }) => {
+const DirectorList = () => {
+    const { directors } = useOutletContext()
+
     const displayDirectors = directors.map(d => (
         <li key={d.id}>
             <Link to={`${d.id}`}>{d.name}</Link>

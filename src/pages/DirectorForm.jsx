@@ -1,10 +1,12 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useOutletContext } from 'react-router-dom'
 
-function DirectorForm({ addDirector }) {
+function DirectorForm() {
   const [name, setName] = useState("")
   const [bio, setBio] = useState("")
   const navigate = useNavigate()
+  const { addDirector } = useOutletContext()
 
   const handleSubmit = (e) => {
     e.preventDefault()

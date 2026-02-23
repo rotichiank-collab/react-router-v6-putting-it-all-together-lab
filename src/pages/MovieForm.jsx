@@ -1,12 +1,14 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useOutletContext } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
 
-function MovieForm({ director, updateDirector }) {
+function MovieForm() {
   const [title, setTitle] = useState("")
   const [time, setTime] = useState("")
   const [genres, setGenres] = useState("")
   const navigate = useNavigate()
+  const { director, updateDirector } = useOutletContext()
 
   if (!director) { return <h2>Director not found.</h2>}
 

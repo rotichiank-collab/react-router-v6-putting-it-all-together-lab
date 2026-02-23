@@ -1,18 +1,14 @@
 
-import { useParams, Link, Routes, Route } from 'react-router-dom';
-import MovieForm from './MovieForm';
-import MovieCard from './MovieCard';
+import { useParams, Link, Outlet } from 'react-router-dom';
+import { useOutletContext } from 'react-router-dom';
 
-function DirectorCard({ directors, setDirectors }) {
+function DirectorCard() {
     const { id } = useParams()
+    const { directors, updateDirector } = useOutletContext()
     const director = directors.find(d => d.id === id)
 
     if (!director) {
         return <h2>Director not found.</h2>
-    }
-
-    const updateDirector = (updatedDirector) => {
-        setDirectors(directors.map(d => d.id === updatedDirector.id ? updatedDirector : d))
     }
 
     return (
@@ -28,10 +24,7 @@ function DirectorCard({ directors, setDirectors }) {
                 ))}
             </ul>
             <Link to={`movies/new`}>Add New Movie</Link>
-            <Routes>
-                <Route path="movies/new" element={<MovieForm director={director} updateDirector={updateDirector} />} />
-                <Route path="movies/:movieId" element={<MovieCard director={director} />} />
-            </Routes>
+            <Outlet context={{ director, updateDirector }} />
         </div>
     )
 }

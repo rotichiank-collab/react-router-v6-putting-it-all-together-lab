@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import NavBar from '../components/NavBar';
-import DirectorList from './DirectorList';
-import DirectorForm from './DirectorForm';
-import DirectorCard from './DirectorCard';
 
 const DirectorContainer = () => {
     const [directors, setDirectors] = useState([])
@@ -22,15 +19,15 @@ const DirectorContainer = () => {
         setDirectors([...directors, newDirector])
     }
 
+    const updateDirector = (updatedDirector) => {
+        setDirectors(directors.map(d => d.id === updatedDirector.id ? updatedDirector : d))
+    }
+
     return (
         <>
             <NavBar />
             <main>
-                <Routes>
-                    <Route index element={<DirectorList directors={directors} />} />
-                    <Route path="new" element={<DirectorForm addDirector={addDirector} />} />
-                    <Route path=":id/*" element={<DirectorCard directors={directors} setDirectors={setDirectors} />} />
-                </Routes>
+                <Outlet context={{ directors, addDirector, updateDirector }} />
             </main>
         </>
     );

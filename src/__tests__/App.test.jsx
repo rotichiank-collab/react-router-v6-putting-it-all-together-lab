@@ -3,6 +3,17 @@ import { render, screen, fireEvent, waitFor, within } from '@testing-library/rea
 import { MemoryRouter } from 'react-router-dom'
 import App from '../App'
 
+// Test wrapper to provide outlet context
+const TestWrapper = ({ children, initialEntries, contextValue }) => (
+  <MemoryRouter initialEntries={initialEntries}>
+    {contextValue ? (
+      <div data-testid="context-provider" data-context={JSON.stringify(contextValue)}>
+        {children}
+      </div>
+    ) : children}
+  </MemoryRouter>
+)
+
 beforeEach(() => {
   global.fetch = vi.fn((url) => {
     if (url.includes('/directors')) {

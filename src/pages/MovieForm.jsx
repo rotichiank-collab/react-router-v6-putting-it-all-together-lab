@@ -1,14 +1,13 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { v4 as uuidv4 } from 'uuid'
 
-function MovieForm() {
+function MovieForm({ director, updateDirector }) {
   const [title, setTitle] = useState("")
   const [time, setTime] = useState("")
   const [genres, setGenres] = useState("")
+  const navigate = useNavigate()
 
-  // Replace me
-  const director = null
-  
   if (!director) { return <h2>Director not found.</h2>}
 
   const handleSubmit = (e) => {
@@ -19,7 +18,7 @@ function MovieForm() {
       time: parseInt(time),
       genres: genres.split(",").map((genre) => genre.trim()),
     }
-    fetch(`http://localhost:4000/directors/${id}`, {
+    fetch(`http://localhost:4000/directors/${director.id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json"
@@ -31,9 +30,8 @@ function MovieForm() {
       return r.json()
     })
     .then(data => {
-      console.log(data)
-      // handle context/state changes
-      // navigate to newly created movie page
+      updateDirector(data)
+      navigate(`/directors/${director.id}/movies/${newMovie.id}`)
     })
     .catch(console.log)
   }

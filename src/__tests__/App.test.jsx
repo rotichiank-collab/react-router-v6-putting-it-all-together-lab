@@ -99,6 +99,12 @@ describe('🎬 Movie Directory App - Vitest Suite', () => {
     expect(await screen.findByRole('link', { name: /Inception/i })).toBeInTheDocument()
   })
 
+  it('navigates to About page when clicking About link', async () => {
+    const router = createMemoryRouter(routes, { initialEntries: ['/about'] })
+    render(<RouterProvider router={router} />)
+    expect(await screen.findByText(/About the Movie Directory/i)).toBeInTheDocument()
+  })
+
   it('navigates to MovieForm at "/directors/1/movies/new"', async () => {
     const router = createMemoryRouter(routes, { initialEntries: ['/directors/1/movies/new'] })
     render(<RouterProvider router={router} />)
